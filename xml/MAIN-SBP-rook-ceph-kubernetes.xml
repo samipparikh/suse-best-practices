@@ -8,10 +8,10 @@
 <article role="sbp" xmlns="http://docbook.org/ns/docbook" xmlns:xi="http://www.w3.org/2001/XInclude"
 	xmlns:xlink="http://www.w3.org/1999/xlink" version="5.0" xml:id="art-rook-kubernetes-ceph"
 	xml:lang="en">
-	
+
 	<info>
 		<title>Rook Best Practices for Running Ceph on Kubernetes </title>
-		<productname>SUSE Enterprise Storage, Ceph, Rook, Kubernetes, Cloud as a Service Platform</productname>
+		<productname>SUSE Enterprise Storage, Ceph, Rook, Kubernetes</productname>
 		<author>
 			<personname>
 				<firstname>Blaine</firstname>
@@ -25,8 +25,15 @@
 			</personname>
 		</author>
 		<date>May 14, 2020</date>
+		<abstract>
+			<para>
+				The document at hand provides an overview of the best practices and
+				tested patterns of using Rook v1.3 to manage your Ceph Octopus
+				cluster running in Kubernetes.
+			</para>
+		</abstract>
 	</info>
-	
+
   <sect1 xml:id="sec-rook-bp-overview">
     <title>Overview</title>
 		<para>
@@ -39,7 +46,7 @@
 			<listitem>
 				<para>
 					How can I restrict Ceph to a portion of my nodes?
-				</para>				
+				</para>
 			</listitem>
 			<listitem>
 				<para>
@@ -107,7 +114,7 @@
 					</listitem>
 					<listitem>
 						<para>
-							(Anti-)affinity
+							Affinity and anti-affinity
 						</para>
 					</listitem>
 					<listitem>
@@ -180,7 +187,7 @@
 		<para>
 			The data center looks as follows:
 		</para>
-  	
+
 		<figure xml:id="fig-datacenter">
      <title>Example Datacenter</title>
 		 <mediaobject>
@@ -192,7 +199,7 @@
 			</imageobject>
 		 </mediaobject>
 		</figure>
-  	
+
     <para>
 			Now we will dig a little deeper and talk about the actual disks used
 			for Rook and Ceph storage. To ensure we are following known Ceph
@@ -202,7 +209,7 @@
 			storage. Additionally, all nodes in all racks (except in the failure
 			domain) will have disks for OSD storage. This will look like the following:
     </para>
-  	
+
 		<figure xml:id="fig-datacenter-disks">
      <title>Example Datacenter - Disks</title>
 			<mediaobject>
@@ -214,14 +221,14 @@
 			 </imageobject>
 			</mediaobject>
 		</figure>
-  	
+
     <important>
     	<title>Diagrams</title>
 			<para>
 				Refer to these diagrams when we discuss the example data center below.
 			</para>
     </important>
-  	
+
   </sect1>
 	<sect1 xml:id="sec-rook-bp-intro">
     <title>Introduction</title>
@@ -230,18 +237,17 @@
 			best practices. This document specifically covers best practices
 			for running Ceph on Kubernetes with Rook. Rook bridges the gap between
 			Ceph and Kubernetes, putting it in a unique domain with its own best
-			practices to follow. Rook also has different ways to meet Ceph and
-			Kubernetes best practices, compared to the bare metal version of
-			Kubernetes itself as Rook augments on top. Out of the box, Rook is
-			predominantly a default Ceph cluster. The Ceph cluster needs tuning
-			to meet user workloads, and Rook does not absolve the user from
-			planning out their production storage cluster beforehand.
+			practices to follow. Rook has different ways of meeting some Ceph and
+			Kubernetes best practices, compared to the bare metal usage of each.
+			Out of the box, Rook is predominantly a default Ceph cluster. The
+			Ceph cluster needs tuning to meet user workloads, and Rook does not
+			absolve the user from planning out their production storage cluster beforehand.
 		</para>
 		<para>
 			For the purpose of this document, we will consider two simplified
 			use cases to help us make informed decisions about Rook and Ceph:
 		</para>
-		
+
 		<itemizedlist>
 			<listitem>
 				<para>
@@ -254,7 +260,7 @@
 				</para>
 			</listitem>
 		</itemizedlist>
-		
+
   </sect1>
 	<sect1 xml:id="sec-rook-bp-general">
     <title>General Best Practices</title>
@@ -262,7 +268,7 @@
 			This chapter provides an outline of a series of generalized
 			recommendations for best practices:
 		</para>
-		
+
 		<itemizedlist>
 			<listitem>
 				<para>
@@ -307,7 +313,7 @@
 					delete deployments for OSDs that have been kicked out. Rook will
 					automatically clean up the cluster by removing OSD pods if the OSDs
 					are no longer holding Ceph data. However, keep in mind that this can
-					reduce the visibility of failures from Kubernetes cluster levels.
+					reduce the visibility of failures from Kubernetes cluster perspective.
 					You can optionally set <literal>removeOSDSIfOutAndSafeToRemove</literal> to <option>false</option>
 					if need be, such as if a Kubernetes administrator wants to see disk
 					failures via a Pod overview.
@@ -318,13 +324,14 @@
 					Configure Ceph using the central configuration database when
 					possible. This allows for more runtime configuration flexibility.
 					Do this using the <command>ceph config set</command> commands. Only use Rook’s
-					provided <filename>ceph.conf</filename> to override <literal>ConfigMap</literal> when it is required.
+					provided <filename>ceph.conf</filename> to override <literal>ConfigMap</literal> when
+					a configuration requires it.
 				</para>
 			</listitem>
 		</itemizedlist>
-		
+
   </sect1>
-	<sect1 xml:id="sec-limit-ceph-specifc-nodes">
+	<sect1 xml:id="sec-limit-ceph-specific-nodes">
     <title>Limiting Ceph to Specific Nodes</title>
 		<para>
 			One of the more common setups you may want for your Rook-Ceph cluster
@@ -332,30 +339,28 @@
 			cases, you should have valid reasons why you must not (or do not want
 			to) use some nodes for storage. This is applicable for both co-located
 			and dis-aggregated use cases. To limit Ceph to specific nodes, we
-			can label Kubernetes nodes and configure Rook to have <option>affinity</option> (as
+			can label Kubernetes nodes and configure Rook to have Affinity (as
 			a hard preference) for our label.
 		</para>
 		<para>
 			Label the desired storage nodes with <literal>storage-node=true</literal>. We will
-			configure Rook affinities in both the Rook Operator manifest
+			configure Rook Affinities in both the Rook Operator manifest
 			(<filename>operator.yaml</filename>) and the Ceph cluster manifest (<filename>cluster.yaml</filename>).
 		</para>
 		<para>
 			<filename>operator.yaml</filename>
 		</para>
-		
+
 <screen>
 CSI_PROVISIONER_NODE_AFFINITY: “storage-node=true”
 AGENT_NODE_AFFINITY: “storage-node=true”
 DISCOVER_AGENT_NODE_AFFINITY: “storage-node=true”
 </screen>
-		
-    <note>
 			<para>
 				The CSI provisioner is best started on the same nodes as the
 				other Ceph daemons. As above, add affinity for all storage
 				nodes in <filename>cluster.yaml</filename>:
-			</para>    	
+			</para>
 <screen>
 placement:
 	all:
@@ -368,17 +373,16 @@ placement:
 						values:
 						- "true"
 </screen>
-    </note>
-		
+
   </sect1>
 	<sect1 xml:id="sec-segregate-ceph-user-app">
     <title>Segregating Ceph From User Applications</title>
 		<para>
 			You should separate Rook and Ceph nodes from application nodes.
 			This falls under the dis-aggregated use-case, and it is a more
-			traditional way to deploy storage. In this case, we still need to
-			<xref linkend="sec-limit-ceph-specifc-nodes"/> as described in the section
-			above, and we also need some additional settings.
+			traditional way to deploy storage. In this case, we still need to follow
+			best practices as noted in the section above, <xref linkend="sec-limit-ceph-specific-nodes"/>,
+			and we also need some additional settings.
 		</para>
 		<para>
 			To segregate Ceph from user applications, we will also label
@@ -387,40 +391,40 @@ placement:
 			are run). We then add a CSI plugin affinity for all non-storage
 			nodes in the Rook operator configuration.
 		</para>
-		
+
 <screen>
 CSI_PLUGIN_NODE_AFFINITY: "storage-node=false"
 </screen>
-		
+
     <para>
 			In addition to that, we will configure Kubernetes Node Taints
 			and Rook Tolerations. For example, Taint the storage nodes with
 			<literal>storage-node=true:NoSchedule</literal>. We then add
 			Tolerations to the Rook operator in <filename>operator.yaml</filename>:
     </para>
-		
+
 <screen>
 AGENT_TOLERATIONS:  |
 	 - key: storage-node
 	   operator: Exists
 </screen>
-		
+
 <screen>
 DISCOVER_TOLERATIONS:  |
 	 - key: storage-node
 	   operator: Exists
 </screen>
-		
+
 <screen>
 CSI_PROVISIONER_TOLERATIONS:  |
 	 - key: storage-node
 	   operator: Exists
 </screen>
-		
+
      <para>
 			 Also add a Toleration for Ceph daemon pods in <filename>cluster.yaml</filename>:
      </para>
-		
+
 <screen>
 placement:
   all:
@@ -428,14 +432,14 @@ placement:
 		- key: storage-node
 		  operator: Exists
 </screen>
-		
+
      <tip>
 			 <title>Set CRUSH Map via Kubernetes Node Labels</title>
 			 <para>
 				 A feature that was implemented early in Rook’s development is
 				 to set Ceph’s CRUSH map via Kubernetes Node Labels. For our example
-				 data center, label nodes with <option>room</option>, <option>rack</option>,
-				 and <option>chassis</option> are used.
+				 data center, it could be useful to Label Nodes with
+				 <option>room</option>, <option>rack</option>, and <option>chassis</option>.
 			 </para>
 			 <para>
 				 As a note, Rook will only set a CRUSH map on initial creation for
@@ -444,10 +448,10 @@ placement:
 				 after Rook has created it must be done manually.
 			 </para>
 			 <para>
-				 For example, in our hypothetical data center, label nodes will
-				 look like the following:
+				 For example, in our hypothetical data center, using <command>kubectl</command>
+				 commands for Labeling Nodes will look like the following:
 			 </para>
-     	
+
 <screen>
 # -- room-1 --
 kubectl label node node-1-1-1 topology.rook.io/room=room-1
@@ -490,9 +494,9 @@ kubectl label node node-f-1-1 topology.rook.io/room=room-f
 kubectl label node node-f-1-1 topology.rook.io/rack=rack-f-1
 kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 </screen>
-     	
+
      </tip>
-		
+
   </sect1>
 	<sect1 xml:id="sec-planning-nodes-ceph-daemons">
     <title>Planning the Nodes Where Ceph Daemons Will Run</title>
@@ -510,7 +514,7 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 		<para>
 			This can lead us to the following specific goals:
 		</para>
-		
+
 		<itemizedlist>
 			<listitem>
 				<para>
@@ -538,7 +542,7 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 				</note>
 			</listitem>
 		</itemizedlist>
-		
+
 		<tip>
 			<title>Topology Labels</title>
 			<para>
@@ -546,7 +550,7 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 				CRUSH map here for convenience.
 			</para>
 		</tip>
-		
+
 		<para>
 			Because of our MON SSD availability, in our hypothetical data center,
 			we only want monitors to be able to run where shown below in green.
@@ -557,7 +561,7 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 			orange below. This will give us the most redundancy under failure
 			conditions.
 		</para>
-		
+
 		<figure xml:id="fig-datacenter-mon-failover">
      <title>Example Datacenter - MON Failover</title>
 			<mediaobject>
@@ -569,18 +573,19 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 			 </imageobject>
 			</mediaobject>
 		</figure>
-		
+
     <para>
 			To implement this in Rook, ensure you only schedule MONs on nodes
-			with MON SSDs. There is a required affinity for those nodes, which
+			with MON SSDs. There is a required Affinity for those nodes, which
 			can be accomplished by applying a <option>ceph-mon-ssd=true</option> label to nodes
-			with SSDs for Ceph MONs. Note that the MON section’s <literal>nodeAffinity</literal>
-			overwrites the all section’s <literal>nodeAffinity</literal>. Thus we must ensure that
-			we re-specify the rules from the all section to ensure Ceph MONs
-			maintain affinity only for storage nodes.
+			with SSDs for Ceph MONs. Note that the <literal>mon</literal> section’s <literal>nodeAffinity</literal>
+			overwrites the <literal>all</literal> section’s <literal>nodeAffinity</literal>. Thus we must ensure that
+			we re-specify the rules from the <literal>all</literal> section to ensure Ceph MONs
+			maintain Affinity only for storage nodes.
     </para>
-		
+
 <screen>
+mon:
 nodeAffinity:​
 	requiredDuringSchedulingIgnoredDuringExecution:​
 	  nodeSelectorTerms:​
@@ -595,16 +600,16 @@ nodeAffinity:​
 	      values:​
 	      - "true"
 </screen>
-		
+
     <para>
 			We want to schedule MONs so they are spread across failure domains
-			whenever possible. We will accomplish this by applying anti-affinity
+			whenever possible. We will accomplish this by applying Anti-affinity
 			between MON pods. Rook labels all MON pods <literal>app=rook-ceph-mon</literal>, and
 			that is what will be used to spread the monitors apart. There is
 			one rule for rooms, and one for racks if a room is down. We want to
 			ensure a higher weight is given to riskier co-location scenarios:
     </para>
-		
+
 <screen>
 podAntiAffinity:​
 	preferredDuringSchedulingIgnoredDuringExecution:​
@@ -621,16 +626,16 @@ podAntiAffinity:​
 	        app: rook-ceph-mon​
 	    topologyKey: topology.rook.io/rack​
 </screen>
-		
+
     <para>
 			We do not recommend running MONs on the same node unless absolutely
-			necessary. Rook automatically applies an anti-affinity with
+			necessary. Rook automatically applies an Anti-affinity with
 			medium-level weight. However, this might not be appropriate for
 			all scenarios. For our scenario, we only want node-level co-location
 			in the worst of failure scenarios, so we want to apply the
-			highest weight anti-affinity for nodes.
+			highest weight Anti-affinity for nodes.
     </para>
-		
+
 <screen>
 podAntiAffinity:​
 	preferredDuringSchedulingIgnoredDuringExecution:​
@@ -641,7 +646,7 @@ podAntiAffinity:​
 	        app: rook-ceph-mon​
 	    topologyKey: kubernetes.io/hostname​
 </screen>
-		
+
     <note>
 			<para>
 				If <literal>hostNetworking</literal> is enabled, you cannot co-locate MONs, because
@@ -650,14 +655,16 @@ podAntiAffinity:​
 				<literal>requiredDuringSchedulingIgnoredDuringExecution</literal> Pod Anti-affinity rule.
 			</para>
     </note>
-		
+
 		<para>
 			There is a lot of planning that goes into the placement of monitors,
 			and this is also true for OSDs. Fortunately, because the planning is
 			already done with the monitors and because we have discussed the methods,
-			it is quite a bit easier to plan for the OSDs.
+			it is quite a bit easier to plan for the OSDs. As noted in the
+			example data center section, we want to run OSDs on all Ceph nodes
+			in the two main data center rooms.
 		</para>
-		
+
 		<figure xml:id="fig-datacenter-osd-placement">
      <title>Example Datacenter - OSD Placement</title>
 			<mediaobject>
@@ -669,29 +676,30 @@ podAntiAffinity:​
 			 </imageobject>
 			</mediaobject>
 		</figure>
-		
+
     <para>
 			There are two ways to select nodes to use for OSDs:
     </para>
-		
+
 		<itemizedlist>
 			<listitem>
 				<para>
 					Apply Kubernetes Node labels and tell Rook to look for
-					those labels. Specify in the <filename>cluster.yaml</filename>
+					those Labels. Specify in the <filename>cluster.yaml</filename>
 					<filename>storage:useAllNodes true</filename> and specify
 					<literal>osd nodeAffinity</literal> using <literal>ceph-osd=true</literal>
-					label using the same affinity methods we used for MONs.
+					Label using the same Affinity methods we used for MONs.
 				</para>
 			</listitem>
 			<listitem>
 				<para>
 					Specify Node names in the <literal>CephCluster</literal> definition
-					(<filename>cluster.yaml</filename>) individually: <literal>storage:nodes</literal>.
+					(<filename>cluster.yaml</filename>) individually using the
+					<literal>storage:nodes</literal> configuration.
 				</para>
 			</listitem>
 		</itemizedlist>
-		
+
 		<para>
 			Choosing which option to use depends on your desired management
 			strategy. There is no single strategy we would recommend over any other.
@@ -702,7 +710,7 @@ podAntiAffinity:​
 			daemons can all be placed as desired. For more information, see
 			<link xlink:href="https://rook.io/docs/rook/master/ceph-cluster-crd.html#placement-configuration-settings"/>
 		</para>
-		
+
   </sect1>
 	<sect1 xml:id="sec-hardware-resource-req">
     <title>Hardware Resource Requirements and Requests</title>
@@ -719,7 +727,7 @@ podAntiAffinity:​
 		<para>
 			When there are Ceph hardware requirements, treat those requirements as
 			<emphasis>Requests</emphasis>, not <emphasis>Limits</emphasis>. This is because all Ceph daemons are critical for
-			storage, and it is best to never set resource <emphasis>Limits</emphasis> for Ceph pods. If
+			storage, and it is best to never set resource <emphasis>Limits</emphasis> for Ceph Pods. If
 			Ceph Daemons are over-consuming <emphasis>Requests</emphasis>, there is likely a failure
 			scenario happening. Killing a daemon beyond a <emphasis>Limit</emphasis> is likely to
 			make an already bad situation worse. This could create a
@@ -736,7 +744,7 @@ podAntiAffinity:​
 			configuration regarding caching. Keep in mind that individual
 			configurations are out of scope for this document.
 		</para>
-		
+
 		<sect2 xml:id="sec-resource-req-mon-mgr">
 			<title>Resource Requests - MON/MGR</title>
 			<para>
@@ -754,7 +762,7 @@ podAntiAffinity:​
 			<para>
 				MONs:
 			</para>
-			
+
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -782,7 +790,7 @@ podAntiAffinity:​
 					</para>
 				</listitem>
 			</itemizedlist>
-			
+
 		</sect2>
 		<sect2 xml:id="sec-resource-req-osd-cpu">
 			<title>Resource Requests - OSD CPU</title>
@@ -790,14 +798,14 @@ podAntiAffinity:​
 				Recommendations and calculations for OSD CPU are straightforward.
 				Note that resources are applied cluster-wide to
 				all OSDs. If a cluster contains multiple OSD types, you must use the
-				highest requests for the whole cluster. For the examples below, a
+				highest <emphasis>Requests</emphasis> for the whole cluster. For the examples below, a
 				mixture of HDDs journaled to SSD and SSDs without journals would
 				necessitate a <emphasis>Request</emphasis> for 2 cores.
 			</para>
 			<para>
 				Hardware recommendations:
-			</para>			
-			
+			</para>
+
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -835,46 +843,71 @@ podAntiAffinity:​
 					</para>
 				</listitem>
 			</itemizedlist>
-			
+
 		</sect2>
 		<sect2 xml:id="sec-resource-req-osd-ram">
 			<title>Resource Requests - OSD RAM</title>
 			<para>
-				OSD RAM usage comes with the same cluster-wide resource note. Also
-				note that Ceph OSDs self-inspect the Kubernetes Pod Resource <emphasis>Request</emphasis>,
-				and they will try not to overconsume the detected <emphasis>Request</emphasis> on a
-				best-effort basis. Select the greatest of the below options considering
-				all the OSDs in your cluster:
+				There are node hardware recommendations for OSD RAM usage, and this
+				needs to be translated to RAM requests on a per-OSD basis. The
+				node-level recommendation below describes <literal>osd_memory_target</literal>.
+				This is a Ceph configuration that will be described further on.
 			</para>
-			
-			<itemizedlist>
-				<listitem>
-					<para>
-						1 GB x [OSD size]
-					</para>
-				</listitem>
-				<listitem>
-					<para>
-						2 GB = [Bluestore cache size]
-					</para>
-				</listitem>
-			</itemizedlist>
-			
-			<note>
-				<para>
-					Default BlueStore cache is 1 GB for HDDs and 3 GB for SSDs.
-				</para>
-			</note>
-			
+<screen>
+Total RAM required = [number of OSDs] x (1 GB + osd_memory_target) + 16 GB
+</screen>
+
+			<para>
+				Ceph OSDs will attempt to keep heap memory usage under a designated
+				target size set via the <literal>osd_memory_target</literal> configuration option.
+				Ceph’s default <literal>osd_memory_target</literal> is 4GB, and we do not recommend
+				decreasing the <literal>osd_memory_target</literal> below 4GB. You may wish to
+				increase this value to improve overall Ceph read performance by
+				allowing the OSDs to use more RAM. While the total amount of heap
+				memory mapped by the process should stay close to this
+				target, there is no guarantee that the kernel will actually
+				reclaim memory that has been unmapped.
+			</para>
+			<para>
+				For example, a node hosting 8 OSDs, memory <emphasis>Requests</emphasis>
+				would be calculated as such:
+			</para>
+<screen>
+8 OSDs x (1GB + 4GB) + 16GB = 56GB per node
+</screen>
+			<para>
+				Allowing resource usage for each OSD:
+			</para>
+<screen>
+56GB / 8 OSDs = 7GB
+</screen>
+      <para>
+				Ceph has a feature that allows it to set <literal>osd_memory_target</literal>
+				automatically when a Rook OSD Resource Request is set. However,
+				Ceph sets this value <literal>1:1</literal> and does not leave overhead for waiting
+				for the kernel to free memory. Therefore, we recommend setting
+				<literal>osd_memory_target</literal> in Ceph explicitly. Set Rook’s OSD
+				resource requests accordingly and to a higher value than
+				<literal>osd_memory_target</literal> by at least an additional 1GB. This is so
+				Kubernetes does not schedule more applications or Ceph daemons
+				onto a node than the node is likely to have RAM available for.
+			</para>
+			<para>
+				OSD RAM <emphasis>Resource Requests</emphasis> come with the same cluster-wide
+				<emphasis>Resource Requests</emphasis> note as for OSD CPU. Use the highest <emphasis>Requests</emphasis>
+				for a cluster consisting of multiple different configurations of OSDs.
+			</para>
 		</sect2>
 		<sect2 xml:id="sec-resource-req-gateways">
 			<title>Resource Requests - Gateways</title>
 			<para>
 				For gateways, the best recommendation is to always tune your
-				workload and daemon configurations. However, we do recommend the
+				workload and daemon configurations. For more information on tuning,
+				see our Tuning Guide <link xlink:href="https://susedoc.github.io/doc-ses/ses6/single-html/ses-tuning/#tuning-rgw"/>.
+				However, we do recommend the
 				following initial configurations:
 			</para>
-			
+
 			<note>
 				<para>
 					The numbers below for RGW assume a lot of clients connecting. Thus
@@ -882,12 +915,12 @@ podAntiAffinity:​
 					lower for the newer “beast” protocol as opposed to the older
 					“civetweb” protocol.
 				</para>
-				
+
 			</note>
 			<para>
 				RGWs:
 			</para>
-			
+
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -900,11 +933,11 @@ podAntiAffinity:​
 					</para>
 				</listitem>
 			</itemizedlist>
-			
+
 			<para>
 				MDS:
 			</para>
-			
+
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -917,11 +950,11 @@ podAntiAffinity:​
 					</para>
 				</listitem>
 			</itemizedlist>
-			
+
 			<para>
 				NFS-Ganesha:
 			</para>
-			
+
 			<itemizedlist>
 				<listitem>
 					<para>
@@ -935,7 +968,7 @@ podAntiAffinity:​
 				</listitem>
 			</itemizedlist>
 		</sect2>
-		
+
   </sect1>
 	<sect1 xml:id="sec-basic-performance-enhancements">
 		<title>Basic Performance Enhancements</title>
@@ -943,14 +976,14 @@ podAntiAffinity:​
 			The following are some basic performance enhancements. These are a few
 			easy, low-hanging-fruit recommendations.
 		</para>
-		
+
 		<note>
 			<para>
 				Not all of these will be right for all clusters or workloads.
 				Always performance test and use your best judgment.
-			</para>			
+			</para>
 		</note>
-		
+
 		<itemizedlist>
 			<listitem>
 				<para>
@@ -970,13 +1003,23 @@ podAntiAffinity:​
 			<listitem>
 				<para>
 					Use jumbo frames for your networking. This can be applied to both
-					host networking and the CNI plugin.
+					host networking and the CNI plugin. For more information on
+					jumbo frames, see our Tuning Guide <link xlink:href="https://susedoc.github.io/doc-ses/ses6/single-html/ses-tuning/#id-1.5.3.3.5.6.4.2"/>.
+				</para>
+			</listitem>
+			<listitem>
+				<para>
+					For performance-sensitive deployments, ensure Ceph OSDs always
+					get the performance they need by not allowing other Ceph daemons
+					or user applications to run on OSD nodes. Co-locating mons and
+					mgrs with OSDs can still be performed safely as long as there
+					are enough hardware resources to also include monitors and managers.
 				</para>
 			</listitem>
 		</itemizedlist>
 	</sect1>
-	
-	
+
+
 	<sect1 xml:id="sec-legal-notice">
 		<title>Legal Notice</title>
 		<para>Copyright &copy;2006–2020 SUSE LLC and contributors. All rights reserved. </para>
@@ -1006,8 +1049,8 @@ podAntiAffinity:​
 			thereof. Below we draw your attention to the license under which the articles are
 			published.</para>
 	</sect1>
-	
+
 	<?pdfpagebreak style="suse2013" formatter="fop"?>
-	
+
 	<xi:include href="license-gfdl.xml"/>
 </article>
