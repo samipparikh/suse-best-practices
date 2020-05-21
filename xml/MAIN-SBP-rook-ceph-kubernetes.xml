@@ -29,7 +29,7 @@
 			<para>
 				The document at hand provides an overview of the best practices and
 				tested patterns of using Rook v1.3 to manage your Ceph Octopus
-				cluster running in Kubernetes.
+				cluster running in Kubernetes 1.17.
 			</para>
 		</abstract>
 	</info>
@@ -308,7 +308,8 @@
 			<listitem>
 				<para>
 					Rook has the capability to auto-remove deployments for OSDs which
-					are kicked out of a Ceph cluster. An example is: <literal>removeOSDSIfOutAndSafeToRemove=true</literal>.
+					are kicked out of a Ceph cluster. This feature is enabled by setting
+					<literal>removeOSDSIfOutAndSafeToRemove=true</literal>.
 					This means there is less user OSD maintenance and no need to
 					delete deployments for OSDs that have been kicked out. Rook will
 					automatically clean up the cluster by removing OSD pods if the OSDs
@@ -336,11 +337,11 @@
 		<para>
 			One of the more common setups you may want for your Rook-Ceph cluster
 			is to limit Ceph to a specific set of nodes. Even for co-located use
-			cases, you should have valid reasons why you must not (or do not want
+			cases, you may have valid reasons why you must not (or do not want
 			to) use some nodes for storage. This is applicable for both co-located
 			and dis-aggregated use cases. To limit Ceph to specific nodes, we
-			can label Kubernetes nodes and configure Rook to have Affinity (as
-			a hard preference) for our label.
+			can Label Kubernetes nodes and configure Rook to have Affinity (as
+			a hard preference) for our Label.
 		</para>
 		<para>
 			Label the desired storage nodes with <literal>storage-node=true</literal>. We will
@@ -364,21 +365,21 @@ DISCOVER_AGENT_NODE_AFFINITY: “storage-node=true”
 <screen>
 placement:
   all:
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-	nodeSelectorTerms:
-	- matchExpressions:
-	  - key: storage-node
-            operator: In
-	    values:
-	    - "true"
+	  nodeAffinity:
+		  requiredDuringSchedulingIgnoredDuringExecution:
+			  nodeSelectorTerms:
+				- matchExpressions:
+					- key: storage-node
+						operator: In
+						values:
+						- "true"
 </screen>
 
   </sect1>
 	<sect1 xml:id="sec-segregate-ceph-user-app">
     <title>Segregating Ceph From User Applications</title>
 		<para>
-			You should separate Rook and Ceph nodes from application nodes.
+			You may need to sepearate Rook and Ceph nodes from application nodes.
 			This falls under the dis-aggregated use-case, and it is a more
 			traditional way to deploy storage. In this case, we still need to follow
 			best practices as noted in the section above, <xref linkend="sec-limit-ceph-specific-nodes"/>,
@@ -388,7 +389,7 @@ placement:
 			To segregate Ceph from user applications, we will also label
 			all non-storage nodes with <literal>storage-node=false</literal>. The CSI plugin pods
 			must run where user applications run (not where Rook or Ceph pods
-			are run). We then add a CSI plugin affinity for all non-storage
+			are run). We then add a CSI plugin Affinity for all non-storage
 			nodes in the Rook operator configuration.
 		</para>
 
@@ -429,8 +430,8 @@ CSI_PROVISIONER_TOLERATIONS:  |
 placement:
   all:
 	  tolerations:
-		- key: storage-node
-		  operator: Exists
+		  - key: storage-node
+			  operator: Exists
 </screen>
 
      <tip>
@@ -532,8 +533,9 @@ kubectl label node node-f-1-1 topology.rook.io/chassis=node-f-1-1
 					Allow MONs to be on the same host only if no other hosts are available.
 				</para>
 				<para>
-					We must allow this specifically in the cluster configuration <filename>cluster.yaml</filename>
-					by setting <option>allowMultiplePerNode: true</option>.
+					We must allow MON co-location on hosts specifically in the cluster
+					configuration <filename>cluster.yaml</filename> by setting
+					<option>allowMultiplePerNode: true</option>.
 				</para>
 				<note>
 					<para>
@@ -649,8 +651,8 @@ podAntiAffinity:​
 
     <note>
 			<para>
-				If <literal>hostNetworking</literal> is enabled, you cannot co-locate MONs, because
-				the ports will collide on nodes. To enforce this, if<literal>hostNetworking</literal>
+				If host networking is enabled, you cannot co-locate MONs, because
+				the ports will collide on nodes. To enforce this, if host networking
 				is enabled, Rook will automatically set a
 				<literal>requiredDuringSchedulingIgnoredDuringExecution</literal> Pod Anti-affinity rule.
 			</para>
@@ -684,9 +686,9 @@ podAntiAffinity:​
 		<itemizedlist>
 			<listitem>
 				<para>
-					Apply Kubernetes Node labels and tell Rook to look for
+					Apply Kubernetes Node Labels and tell Rook to look for
 					those Labels. Specify in the <filename>cluster.yaml</filename>
-					<filename>storage:useAllNodes true</filename> and specify
+					<filename>storage:useAllNodes:true</filename> and specify
 					<literal>osd nodeAffinity</literal> using <literal>ceph-osd=true</literal>
 					Label using the same Affinity methods we used for MONs.
 				</para>
@@ -850,7 +852,8 @@ podAntiAffinity:​
 			<para>
 				There are node hardware recommendations for OSD RAM usage, and this
 				needs to be translated to RAM requests on a per-OSD basis. The
-				node-level recommendation below describes <literal>osd_memory_target</literal>.
+				node-level recommendation below describes
+				<literal>osd_memory_target</literal>.
 				This is a Ceph configuration that will be described further on.
 			</para>
 <screen>
@@ -886,7 +889,8 @@ Total RAM required = [number of OSDs] x (1 GB + osd_memory_target) + 16 GB
 				automatically when a Rook OSD Resource Request is set. However,
 				Ceph sets this value <literal>1:1</literal> and does not leave overhead for waiting
 				for the kernel to free memory. Therefore, we recommend setting
-				<literal>osd_memory_target</literal> in Ceph explicitly. Set Rook’s OSD
+				<literal>osd_memory_target</literal> in Ceph explicitly, even if
+				you wish to use the default value. Set Rook’s OSD
 				resource requests accordingly and to a higher value than
 				<literal>osd_memory_target</literal> by at least an additional 1GB. This is so
 				Kubernetes does not schedule more applications or Ceph daemons
@@ -997,7 +1001,7 @@ Total RAM required = [number of OSDs] x (1 GB + osd_memory_target) + 16 GB
 					Enable host networking to improve network performance.
 					Notably, this provides lower, more stable latency. This does,
 					however, step outside of Kubernetes’ network security domain.
-					In <filename>cluster.yaml</filename> enable <literal>hostNetwork: true</literal>.
+					In <filename>cluster.yaml</filename> enable <literal>host</literal>.
 				</para>
 			</listitem>
 			<listitem>
@@ -1011,8 +1015,8 @@ Total RAM required = [number of OSDs] x (1 GB + osd_memory_target) + 16 GB
 				<para>
 					For performance-sensitive deployments, ensure Ceph OSDs always
 					get the performance they need by not allowing other Ceph daemons
-					or user applications to run on OSD nodes. Co-locating mons and
-					mgrs with OSDs can still be performed safely as long as there
+					or user applications to run on OSD nodes. Co-locating MONs and
+					MGRs with OSDs can still be performed safely as long as there
 					are enough hardware resources to also include monitors and managers.
 				</para>
 			</listitem>
