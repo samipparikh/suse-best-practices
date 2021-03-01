@@ -7,10 +7,11 @@
 <?pdfpagebreak?>
 ++++
 
-Today, more and more data is created in business and industry.
-Alongside data growth, there is an increasing necessity to manage and exploit this data.
-SAP Data Hub 2 is a tool that makes dealing with large amounts of data easier.
-SUSE Container as a Service Platform 3 (SUSE CaaS Platform 3) is the perfect foundation for SAP Data Hub 2.
+Today, business and industries create more and more data. As the amount of data
+grows, so does the need to manage and get the best out of the data. SAP Data Hub
+2 is a tool that makes it easier to deal with large amounts of data. SUSE
+Container as a Service Platform 3 (SUSE CaaS Platform 3) is the perfect
+foundation for SAP Data Hub 2.
 
 == Requirements
 
@@ -21,7 +22,8 @@ following hardware and software requirements.
 
 ==== SUSE CaaS Platform 3 Cluster
 
-Hardware requirements (see https://help.sap.com/viewer/product/SAP_DATA_HUB/[SAP Data Hub Install Guide])
+SAP's hardware requirements can be found in the link:https://help.sap.com/viewer/product/SAP_DATA_HUB/[SAP Data Hub Install Guide].
+
 See SAP's sizing recommendations:
 
 * link:https://help.sap.com/viewer/e66c399612e84a83a8abe97c0eeb443a/2.3.latest/en-US/79724de552db4b2b81c4a893f2c7ed18.html[SAP Data Hub 2.3 ]
@@ -32,44 +34,52 @@ See SAP's sizing recommendations:
 
 * link:https://help.sap.com/viewer/e66c399612e84a83a8abe97c0eeb443a/2.6.latest/en-US[SAP Data Hub 2.6]
 
-The minimum hardware requirements for installing SAP Data Hub 2 on premise are:
+The minimum hardware requirements for on-premises installation of SAP Data Hub 2
+are:
 
-* 4 Kubernetes cluster nodes (1 master node and 3 worker nodes)
+* 4 Kubernetes cluster nodes (one master node and three worker nodes)
 
-** The master node should be a 4 core machine with > 32 GiB RAM
+** All nodes should have at least four CPU cores
 
-** The three Kubernetes worker nodes should be a machine with 4 cores and with > 64 GiB RAM
+** The master node should have > 32 GiB RAM
+
+** The three worker nodes should have > 64 GiB RAM
 
 // TODO check network requirements
 // TODO disk requirements
 
 * Access to a SUSE Enterprise Storage 5 system (see SAP Note link:https://launchpad.support.sap.com/#/notes/2686169[Pre-requisites for installing SAP Data Hub])
 
-==== Management Host ("Jump Host")
+==== Management Host (or "Jump Host")
 
-It is recommended to do the installation of SAP Data Hub Foundation from an external jump host and not from within the SUSE CaaS Platform Cluster.
+It is not recommended to do the installation of SAP Data Hub Foundation from
+within the SUSE CaaS Platform Cluster. You should use an external "jump host".
 
-The hardware and operating system specifications for the jump host can be for example as follows:
+The hardware and operating system specifications for the this machine could, for
+example, be as follows:
 
-- SUSE Linux Enterprise Server 12 SP4 or SUSE Linux Enterprise Server 15 (or even openSUSE Leap 15.X)
-- 2 Cores
-- 8 GiB RAM
-- Disk space: 50 GiB for `/`, including the space for the SAP Data Hub 2 software and at least 20 GiB for `/var/lib/docker` (necessary for the SAP Data Hub 2 installation)
-- Network connectivity to the SUSE CaaS Platform cluster (1 GBit/s)
+* SUSE Linux Enterprise Server 12 SP4 or 15 (or even openSUSE Leap 15.X)
+* Two CPU cores
+* 8 GiB RAM
+* Disk space:
+** 50 GiB for `/`, including the space for the SAP Data Hub 2 software
+** At least 20 GiB for `/var/lib/docker` (necessary for the SAP Data Hub 2
+installation)
+* Network connectivity to the SUSE CaaS Platform cluster (1 GBit/s)
 
 === Software Requirements
 
-The following software is needed
+The following software is needed:
 
 * SUSE CaaS Platform 3
 
 * SAP Data Hub 2
 
-* optional: SAP Maintenance Planner
+* Optional: SAP Maintenance Planner
 
-* optional: SAP Host Agent
+* Optional: SAP Host Agent
 
-* optional: Hadoop/Spark (see Vora's Spark extensions)
+* Optional: Hadoop/Spark (see Vora's Spark extensions)
 
 
 == Relevant Documentation:
@@ -82,59 +92,68 @@ The following software is needed
 * SAP
 
 ** link:https://help.sap.com/viewer/product/SAP_DATA_HUB/2.6.latest/en-US[SAP Data Hub]
-** link:https://launchpad.support.sap.com/#/notes/2764652[SAP Data Hub 2.6 release note]
-** link:https://launchpad.support.sap.com/#/notes/2686169[Pre-requisites for installing SAP Data Hub]
+** link:https://launchpad.support.sap.com/#/notes/2764652[SAP Data Hub 2.6 release notes]
+** link:https://launchpad.support.sap.com/#/notes/2686169[Prerequisites for installing SAP Data Hub]
 ** link:https://launchpad.support.sap.com/#/notes/2776522[SAP Data Hub 2: Specific Configurations for Installation on SUSE CaaS Platform]
 
 
 == Installing SUSE CaaS Platform 3
 
-=== Downloading the Installation Media
+=== Download the Installation Media
 
-All installation media can be found at https://download.suse.com.
+All installation media can be found at https://download.suse.com/.
 
 === Acquiring a Subscription for SUSE CaaS Platform 3
 
-To receive maintenance updates for SUSE products, you need a valid subscription for the respective products.
-For more information about subscriptions for SUSE CaaS Platform, see
-https://www.suse.com/support/?id=SUSE_CaaS_Platform.
+To receive maintenance updates for SUSE products, you need a valid subscriptions
+for the products. For more information about subscriptions for SUSE CaaS
+Platform, see https://www.suse.com/support/?id=SUSE_CaaS_Platform.
 
 
 === Read the Deployment Guide for SUSE CaaS Platform 3
 
-SUSE CaaS Platform is designed to make the installation of Kubernetes easy.
-For more information on this topic, see the SUSE CaaS Platform 3 __Deployment Guide__ from https://documentation.suse.com.
-For further reference, a __Quick Start Guide__ and an __Administrator's Guide__ are available as well.
+SUSE CaaS Platform is designed to simplify the installation of Kubernetes. For
+more information on this topic, see the SUSE CaaS Platform 3 _Deployment Guide_.
+
+For further reference, a _Quick Start Guide_ and an _Administrator's Guide_ are
+available as well.
+
+All the product documentation can be downloaded from
+https://documentation.suse.com/suse-caasp/3/
+
 
 === Installing SUSE CaaS Platform 3
 
 This document describes the installation of SUSE CaaS Platform 3 from ISO images.
-Make sure that the host names you will use for the installation are resolvable via DNS.
-A static network setup is preferred.
+Make sure that the host names of the cluster nodes can be resolved via DNS. A
+static network setup is preferred.
 
-Have the FQDN or IP address of your time server available. A reliable system time is required.
+You will need to have the FQDN or IP address of your time server. A reliable
+system time is required.
+
 Connect the media to your hardware and boot from the media.
 // Screenshot?
 
-From the GRUB menu, choose __Installation__.
+From the GRUB menu, choose _Installation_.
 
 ==== Installing the Administration Node
 // Add Pictures
 
-. After initializing the hardware, the YaST installer opens the network configuration dialog:
+. After initializing the hardware, the YaST installer opens the network
+configuration dialog:
 +
 image::002-SCT-CaaSP.png[title="Network Configuration Administration Node",scaledwidth=80%]
 
 . On the installation overview screen:
-+
-* Select the keyboard layout and language according to your needs.
 
-* Specify your subscription credentials or the URL of your SMT/RMT server to register your installation.
+.. Select the keyboard layout and language you need.
 
-* Set the password for the root account.
+.. Specify your subscription credentials, or the URL of your SMT/RMT server to
+register your product.
 
-* Assign the role __Administration Node__.
+.. Set the password for the root account.
 
+.. Assign the role _Administration Node_.
 +
 image::007-SCT-CaaSP.png[title="Installation Overview Administration Node",scaledwidth=80%]
 
@@ -144,7 +163,7 @@ image::007-SCT-CaaSP.png[title="Installation Overview Administration Node",scale
 
 ==== Installing the Remaining Cluster Nodes
 
-. Boot the machine from the ISO image and select __Installation__ from the GRUB boot menu.
+. Boot each machine from the ISO image and select _Installation_ from the GRUB boot menu.
 
 . The installer starts and the network configuration dialog is shown.
 +
@@ -153,9 +172,9 @@ image::002-SCT-CaaSP.png[title="Network Configuration Cluster Nodes",scaledwidth
 . Configure the network according to your needs.
 
 . On the installation overview screen:
-+
-* Select the keyboard layout and language according to your needs.
-* Specify your subscription credentials or the URL of your SMT/RMT server to register your installation.
+
+.. Select the keyboard layout and language according to your needs.
+.. Specify your subscription credentials or the URL of your SMT/RMT server to register your installation.
 
 * Set the password for the root account.
 
