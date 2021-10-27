@@ -1,19 +1,33 @@
 :docinfo:
 
 // = {title}
-= Sysdig with SUSE Rancher: A Technical Quick Look
+= Sysdig with SUSE Rancher: Getting Started Guide
 
 // SUSE Rancher - Sysdig
 // :author: Samip Prikh
 :revnumber: 0.0.1
 :toc2:
-:toc-title: Sysdig with SUSE Rancher A Technical Quick Look
+:toc-title: Sysdig with SUSE Rancher: Getting Started Guide
 
 :toclevels: 4
 
 :sles: SUSE Linux Enterprise Server
 
 == Motivation
+
+Security for containers and Kubernetes requires new approaches to ensure visibility and control. Sysdig Secure is designed to help DevOps teams simplify security in cloud-native environments, from development through production.
+Sysdig provides a number of capabilities to help you security run applications on SUSE Rancher:
+* Secure the build – Automate image scanning in CI/CD pipelines and registries, efficiently flag vulnerabilities and owners, and block risky images.
+* Detect and respond to threats – Identify threats across containers and cloud services and to prevent intrusion and lateral movement. Respond quickly and conduct forensics using detailed activity audits.
+* Continuously validate cloud configurations and compliance – Identify misconfigurations and compliance violations, and measure progress with detailed reports. Save time with out-of-the-box policies for standards such as PCI, NIST, HIPAA, and SOC 2.
+* Monitor and troubleshoot infrastructure and services – Maximize performance and availability using Kubernetes and cloud monitoring with full Prometheus compatibility.
+If your organization relies on SUSE Rancher to run cloud-native applications and need to enhance visibility and security of your clusters and containers, this guide will help you take the first steps to integrate Rancher with the Sysdig Secure SaaS solution. If you’re not a Sysdig customer, you can still take advantage of the solution and learn what’s possible by using a Sysdig Free Trial account.
+
+Audience: DevOps and DevSecOps engineers, Security professionals, and Developers who are responsible for enabling security across containers, clusters, and cloud.
+
+
+
+----old
 Agility is the name of the game in modern application development.  This is driving developers toward more agile, cloud native methodologies that focus on microservices architectures and streamlined workflows.  Container technologies, like Kubernetes, embody this agile approach and help enable cloud native transformation.
 
 SUSE Rancher simplifies Kubernetes management, empowering you to take control of your IT landscape and create an agile data platform that accelerates achievement of your goals.  Rancher enables you to manage dynamic, robust, multi-cluster Kubernetes environments and supports any CNCF-certified Kubernetes distribution.  With built-in resilience and scalability, unified security and policy management, and a rich catalog of shared tools and services, Rancher helps you accelerate development-to-production and innovate everywhere.
