@@ -19,50 +19,24 @@ Security for containers and Kubernetes requires new approaches to ensure visibil
 
 Sysdig provides a number of capabilities to help you security run applications on SUSE Rancher:
 
-* Secure the build * – Automate image scanning in CI/CD pipelines and registries, efficiently flag vulnerabilities and owners, and block risky images.
-* Detect and respond to threats * – Identify threats across containers and cloud services and to prevent intrusion and lateral movement. Respond quickly and conduct forensics using detailed activity audits.
-* Continuously validate cloud configurations and compliance * – Identify misconfigurations and compliance violations, and measure progress with detailed reports. Save time with out-of-the-box policies for standards such as PCI, NIST, HIPAA, and SOC 2.
-* Monitor and troubleshoot infrastructure and services *  – Maximize performance and availability using Kubernetes and cloud monitoring with full Prometheus compatibility.
+* Secure the build – Automate image scanning in CI/CD pipelines and registries, efficiently flag vulnerabilities and owners, and block risky images.
+* Detect and respond to threats – Identify threats across containers and cloud services and to prevent intrusion and lateral movement. Respond quickly and conduct forensics using detailed activity audits.
+* Continuously validate cloud configurations and compliance – Identify misconfigurations and compliance violations, and measure progress with detailed reports. Save time with out-of-the-box policies for standards such as PCI, NIST, HIPAA, and SOC 2.
+* Monitor and troubleshoot infrastructure and services  – Maximize performance and availability using Kubernetes and cloud monitoring with full Prometheus compatibility.
 
 If your organization relies on SUSE Rancher to run cloud-native applications and need to enhance visibility and security of your clusters and containers, this guide will help you take the first steps to integrate Rancher with the Sysdig Secure SaaS solution. If you’re not a Sysdig customer, you can still take advantage of the solution and learn what’s possible by using a Sysdig Free Trial account.
 
 Audience: DevOps and DevSecOps engineers, Security professionals, and Developers who are responsible for enabling security across containers, clusters, and cloud.
 
-
-
-----old
-Agility is the name of the game in modern application development.  This is driving developers toward more agile, cloud native methodologies that focus on microservices architectures and streamlined workflows.  Container technologies, like Kubernetes, embody this agile approach and help enable cloud native transformation.
-
-SUSE Rancher simplifies Kubernetes management, empowering you to take control of your IT landscape and create an agile data platform that accelerates achievement of your goals.  Rancher enables you to manage dynamic, robust, multi-cluster Kubernetes environments and supports any CNCF-certified Kubernetes distribution.  With built-in resilience and scalability, unified security and policy management, and a rich catalog of shared tools and services, Rancher helps you accelerate development-to-production and innovate everywhere.
-
-MongoDB is a cloud native database technology that brings all the power of the traditional, relational database and provides a more natural way to work with modern data.  MongoDB offers a variety of compelling features that make it a natural partner for a SUSE Rancher agile data platform.  These include:
-
-Flexible Data Model:: MongoDB’s dynamic schema is ideal for handling changing requirements and continuous delivery.  You can seamlessly roll out new features without having to update existing records — a process that can take weeks for traditional, relational databases.  DevOps teams can quickly model data against an ever-changing environment and roll these changes into production, resulting in faster time to market and faster time to value.
-
-Resilience:: MongoDB’s replica sets have built-in redundancy, providing greater resilience and enhancing disaster recovery capabilities.  Administrators can even isolate operational workloads from analytical reporting in single database cluster to ensure sufficient resources are allocated to handle demand.
-
-Monitoring and Automation::  Heterogenous services increase the level of complexity and can stall productivity. Technology that handles monitoring and automation is critical to keeping DevOps teams productive as their environments evolve. MongoDB Ops Manager features visualization, custom dashboards, and automated alerting.  It tracks, reports, processes, and visualizes 100+ key database and systems-health metrics, including operations counters, CPU utilization, replication status, and node status.
-
-Scalability:: MongoDB’s auto-sharding automatically partitions and distributes the database across nodes, serving IT infrastructures that require dynamic, high-performance capabilities.  Distribution can even span different geographic regions.  MongoDB is ideally suited to scale-out architectures.
-
-
-With enterprise-grade products, proactive support, and success-focused services and training, SUSE and MongoDB deliver an agile data platform that helps organizations achieve their cloud native goals.
-
-
 == Technical overview
 
-SUSE Rancher is a lightweight Kubernetes installer that supports installation on bare-metal and virtualized servers.  Rancher solves a common issue in the Kubernetes community: installation complexity.  With Rancher, Kubernetes installation is simplified, regardless of what operating systems and platforms you are running.
+Sysdig security and monitoring capabilities for SUSE Rancher are enabled by deploying the Sysdig agent on the nodes of your cluster. Relevant data and metadata are collected and available in the Sysdig SaaS backend and accessible via the Sysdig user interface (UI). The Sysdig UI also provides the ability for you to customize aspects like policies, alerts, visualizations, permissions, etc.
+Minimum requirements:
+* A Sysdig cloud account. You can get started with a free trial by visiting https://sysdig.com/start-free/[https://sysdig.com/start-free].
+* A SUSE Rancher cluster running K8s or K3s. Clusters can be located on premises or in the cloud.
+* Outbound internet access (at least port 6443). This allows collected information to be sent to the Sysdig back end. You can learn more in the Sysdig documentation here.
 
-This document reviews considerations for deploying and managing a highly available, MongoDB NoSQL database on a SUSE Rancher Kubernetes cluster.
-
-In practice, the process is as follows:
-
-* Install a Kubernetes cluster through Rancher Kubernetes Engine
-* Install a cloud native storage solution on Kubernetes
-* Deploy https://docs.mongodb.com/kubernetes-operator/master/[MongoDB Enterprise Kubernetes Operator]
-* Configure a storage class and define storage requirements via Operator
-* Test failover by killing or cordoning nodes in your cluster
-
+You can find the prerequisites for the Sysdig agent install on Kubernetes in the Sysdig documentation https://docs.sysdig.com/en/docs/installation/sysdig-agent/agent-installation/agent-install-kubernetes/#agent-install-kubernetes[here].
 
 == Value of HA for data
 
