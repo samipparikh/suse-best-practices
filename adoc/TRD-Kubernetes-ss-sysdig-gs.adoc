@@ -39,6 +39,26 @@ Minimum requirements:
 
 You can find the prerequisites for the Sysdig agent install on Kubernetes in the Sysdig documentation https://docs.sysdig.com/en/docs/installation/sysdig-agent/agent-installation/agent-install-kubernetes/#agent-install-kubernetes[here].
 
+== Installation
+
+To get started, install the Sysdig agent in your cluster. Choose one of the following methods:
+
+* *Install from Rancher Apps & Marketplace:*  From the top-left Rancher menu select “Apps & Marketplace.”
+
+IMAGE 1
+IMAGE 2
+
+You will be taken to the Charts page. Locate Sysdig Monitor & Secure to install using the Sysdig https://github.com/sysdiglabs/charts-rancher[helm chart.]
+
+This will automate the installation of the Sysdig agent. In the UI, you will need to provide a namespace and the https://docs.sysdig.com/en/docs/administration/administration-settings/agent-installation-overview-and-key/#agent-installation-overview-and-key[Sysdig access key.]
+
+IMAGE 3
+IMAGE 4
+
+Once you initiate the helm chart, within 15 minutes you should begin seeing data and activity in your Sysdig UI.
+
+* *Install using generic/manual steps:*  To install the Sysdig agent using manual steps, follow the instructions https://docs.sysdig.com/en/docs/installation/sysdig-agent/agent-installation/agent-install-kubernetes/steps-for-rancher/#steps-for-rancher[available in the Sysdig documentation.]
+
 == Value of HA for data
 
 One of the primary benefits of running a Kubernetes environment is flexibility, the ability to easily adapt to varying circumstances.  Traditional database deployments exist in fairly static configurations and environments.  The beauty of running a data-oriented service on Kubernetes lies in maintaining stability while enabling adaptability to meet real-world situations.
