@@ -19,10 +19,10 @@ Security for containers and Kubernetes requires new approaches to ensure visibil
 
 Sysdig provides a number of capabilities to help you security run applications on SUSE Rancher:
 
-* Secure the build :: – Automate image scanning in CI/CD pipelines and registries, efficiently flag vulnerabilities and owners, and block risky images.
-* Detect and respond to threats :: – Identify threats across containers and cloud services and to prevent intrusion and lateral movement. Respond quickly and conduct forensics using detailed activity audits.
-* Continuously validate cloud configurations and compliance :: – Identify misconfigurations and compliance violations, and measure progress with detailed reports. Save time with out-of-the-box policies for standards such as PCI, NIST, HIPAA, and SOC 2.
-* Monitor and troubleshoot infrastructure and services ::  – Maximize performance and availability using Kubernetes and cloud monitoring with full Prometheus compatibility.
+* Secure the build * – Automate image scanning in CI/CD pipelines and registries, efficiently flag vulnerabilities and owners, and block risky images.
+* Detect and respond to threats * – Identify threats across containers and cloud services and to prevent intrusion and lateral movement. Respond quickly and conduct forensics using detailed activity audits.
+* Continuously validate cloud configurations and compliance * – Identify misconfigurations and compliance violations, and measure progress with detailed reports. Save time with out-of-the-box policies for standards such as PCI, NIST, HIPAA, and SOC 2.
+* Monitor and troubleshoot infrastructure and services *  – Maximize performance and availability using Kubernetes and cloud monitoring with full Prometheus compatibility.
 
 If your organization relies on SUSE Rancher to run cloud-native applications and need to enhance visibility and security of your clusters and containers, this guide will help you take the first steps to integrate Rancher with the Sysdig Secure SaaS solution. If you’re not a Sysdig customer, you can still take advantage of the solution and learn what’s possible by using a Sysdig Free Trial account.
 
