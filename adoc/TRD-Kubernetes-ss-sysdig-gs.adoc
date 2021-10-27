@@ -32,6 +32,7 @@ Audience: DevOps and DevSecOps engineers, Security professionals, and Developers
 
 Sysdig security and monitoring capabilities for SUSE Rancher are enabled by deploying the Sysdig agent on the nodes of your cluster. Relevant data and metadata are collected and available in the Sysdig SaaS backend and accessible via the Sysdig user interface (UI). The Sysdig UI also provides the ability for you to customize aspects like policies, alerts, visualizations, permissions, etc.
 Minimum requirements:
+
 * A Sysdig cloud account. You can get started with a free trial by visiting https://sysdig.com/start-free/[https://sysdig.com/start-free].
 * A SUSE Rancher cluster running K8s or K3s. Clusters can be located on premises or in the cloud.
 * Outbound internet access (at least port 6443). This allows collected information to be sent to the Sysdig back end. You can learn more in the Sysdig documentation here.
