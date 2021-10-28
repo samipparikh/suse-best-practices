@@ -45,7 +45,7 @@ To get started, install the Sysdig agent in your cluster. Choose one of the foll
 
 * *Install from Rancher Apps & Marketplace:*  From the top-left Rancher menu select “Apps & Marketplace.”
 
-IMAGE 1
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 IMAGE 2
 
 You will be taken to the Charts page. Locate Sysdig Monitor & Secure to install using the Sysdig https://github.com/sysdiglabs/charts-rancher[helm chart.]
@@ -59,198 +59,142 @@ Once you initiate the helm chart, within 15 minutes you should begin seeing data
 
 * *Install using generic/manual steps:*  To install the Sysdig agent using manual steps, follow the instructions https://docs.sysdig.com/en/docs/installation/sysdig-agent/agent-installation/agent-install-kubernetes/steps-for-rancher/#steps-for-rancher[available in the Sysdig documentation.]
 
-== Value of HA for data
+== Demo / Use case
 
-One of the primary benefits of running a Kubernetes environment is flexibility, the ability to easily adapt to varying circumstances.  Traditional database deployments exist in fairly static configurations and environments.  The beauty of running a data-oriented service on Kubernetes lies in maintaining stability while enabling adaptability to meet real-world situations.
+*Configuring a Runtime Security Policy*
 
-Imagine a scenario where your e-commerce site is consistently taking 100 orders per day.  Suddenly a viral marketing event occurs, and your site is pushed to 5000 orders per day for a day.  This in-crease could easily lead to data overload – or, worse, corruption or downtime, which could result to considerable loss of revenue.  Having a way to design for such failure scenarios and maintain resilient operations is a tangible market advantage.
+Sysdig Secure runtime security provides policy-driven detections, based on open-source https://falco.org[Falco.] Using out-of-the-box and custom policies, you can automate detection and alerting of suspicious and unexpected activity across containers, clusters, and clouds.
 
-MongoDB can run in a single node configuration and in a clustered configuration using replica sets (not to be confused with Kubernetes Stateful Sets). A replica set is a group of MongoDB instances that maintain the same data. A replica set contains several data-bearing nodes and optionally one arbiter node. Of the data-bearing nodes, one and only one member is deemed the primary node, while the other nodes are deemed secondary nodes.  Resiliency of the data is achieved, as illustrated below.
+Let’s look at a specific example. In the following use case, we’ll create a custom policy that will detect when a shell is spawned in a container with an attached terminal. Commands being executed with a terminal inside a running container can be an indicator of a potential infiltration or attack.
 
-image::rancher-mongo-1.png[scaledwidth="75%", align="center"]
-
-In this configuration the failover process generally completes within a minute.  It may take about 30 seconds for the members of a replica set to declare a primary inaccessible. One of the remaining secondaries will then be enabled as the “new primary.”  The election itself may take another 10 to 30 seconds.  During this time, the data will be preserved in a virtually seamless way for dependent services.
+NOTE: For the sake of this example we are creating a *simple* custom rule that can be inhibited by other rules, thus we strongly recommend disallowing “Suspicious Container Activity” default rule before adding the new rule (Policies > Runtime Policies > Suspicious Container Activity).  After the experiment you may want to reactivate it again.
 
 
-== Setting up a cluster with SUSE Rancher
+Log in to Sysdig Secure, and In the Sysdig UI, on the left panel, select Policies > Runtime Policies.
 
-SUSE Rancher is a tool to install and configure Kubernetes in a choice of environments including bare metal, virtual machines, and IaaS. Rancher is a complete container management platform built on upstream Kubernetes.
-It consists of three major components:
-* A certified Kubernetes Distribution – Rancher Kubernetes Engine (RKE)
-* A Kubernetes Management platform (Rancher)
-* Application Catalog and management (Third-party)
-Rancher has the capabilities to manage any Kubernetes cluster from a central location, via the
-Rancher server.  As illustrated below, Rancher can manage any Kubernetes flavor and is not restricted to RKE.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-image::rancher-mongo-2.png[scaledwidth="75%", align="center"]
+This opens the *Runtime Policies* screen where you can see the policies pre-defined by Sysdig.
 
-For reference, see Rancher deployment guides for specific details on installation.    By the end of this step, you should have a cluster with one master and three worker nodes.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-image::rancher-mongo-3.png[scaledwidth="75%", align="center"]
+Let’s create our own, custom policy that will detect terminal shell activity. Select Add Policy in the upper right corner. In the pop-up screen, select Workload Policy.
 
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-== Storage considerations
+In the New Policy screen, enter a name and a description:
 
-When deploying an application that needs to retain data, you’ll need to create persistent storage. Persistent storage allows you to store application data external from the pod running your application. This storage practice allows you to maintain application data, even if the application’s pod fails.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-A variety of storage options exist and can be used to create an HA data solution with Rancher.  Some considerations you may need to consider for your storage solution include:
+Keep the policy defaults: Enabled with severity level of High. You can customize the scope of this rule, indicating where it should apply. In our example, we’ve scoped it to a namespace called terminal-shell-in-container. You can also set this to a broader scope, such as kubernetes.cluster.name, for example.
 
-* Volumes as persistent storage for the distributed stateful applications
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-* Partitioned block storage for Kubernetes volumes with or without a cloud provider
+Next, you’ll want to assign a rule to use with the policy. Select Import from Library.
 
-* Replicated block storage across multiple nodes and data centers to increase availability
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-* Secondary data backup storage (e.g., NFS or S3)
+Find and select Terminal shell in a container in the Rules Library, then click in Import Rules.
 
-* Cross-cluster disaster recovery volumes
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-* Recurring volume snapshots
+You should now see the Terminal shell in a container rule assigned to your policy.
 
-* Recurring backups to secondary storage
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-* Non-disruptive upgrades
+Next, under Actions, you can choose whether you’d like to kill, stop, or pause the container when the policy is triggered. Read more about Actions https://docs.sysdig.com/en/docs/sysdig-secure/policies/manage-policies/#define-actions[here].  Leave this set to Nothing for this exercise.
 
+You can also select a notification channel. Your email will be the default notification channel. You can configure additional options under settings > notification channels. In our example, we’ve chosen Slack Channel from our list of options.  You can also leave this blank.
 
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-Some common storage solutions to consider:
+Finally, you can enable a Capture to record system call data surrounding an event. For this exercise, toggle on the capture, provide a file name, and choose the number of seconds before and after the event to record. For example, 10 seconds before, and 20 seconds after the event.
 
-https://longhorn.io[Longhorn]:: Distributed block storage system for Kubernetes. originally developed by Rancher Labs.  Currently sandbox project of the Cloud Native Computing Foundation
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-https://openebs.io[OpenEBS]:: Open source, CNCF Sandbox storage with flexible storage engine options - requires third-party integration
+When the above steps are complete, click on Save.
 
-https://ceph.io[Ceph]:: Powerful, open source, general purpose storage in the CNCF Sandbox – requires third-party integration
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-https://portworx.com[Portworx]:: Proprietary solution with Rancher certified integration - installation steps can be found https://docs.portworx.com/install-with-other/rancher/rancher-2.x[here]
+*Triggering a Test Event*
 
+Using the below test instructions, you can trigger a test event to observe how Sysdig Secure detects the terminal shell in a container event. In addition, you’ll be able to drill into the information captured to help you investigate the incident.
 
+*Opening a terminal shell using Rancher*
 
-=== Setting up your storage
+You can open a terminal shell from any container that is running in your Rancher cluster. Simply go to the Workloads section and get into any Pod with at least a running container (we used the self sysdig agent pod in this example)
 
-Before proceeding, be sure that you understand the Kubernetes concepts of persistent volumes, persistent volume claims, and storage classes.  For more information, refer to https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/how-storage-works[How Persistent Storage Works] in the Rancher documentation.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-The workflow for setting up existing storage is as follows:
+From the right menu you can click “Execute Shell” option and a new terminal shell will be shown at the bottom of the screen.
 
-. Ensure you have access to Set up your persistent storage. This may be storage in an infrastructure provider, or it could be your own storage.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-. Add a persistent volume (PV) that refers to the persistent storage.
+That is enough to be caught in red-handed by Sysdig Secure.
 
-. Add a persistent volume claim (PVC) that refers to the PV.
+You can also type a few commands of your choice to generate additional data that will be captured by Sysdig. In our example below, you will see this type of information captured as we investigate the activity we generated our Sysdig/Rancher test environment.
 
-. Mount the PVC as a volume in your workload.
+*Viewing and Investigating the Event in Sysdig Secure*
 
-Visit the Rancher documentation section on https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/attaching-existing-storage[Setting Up Existing Storage] for further details and prerequisites.
+Once the runtime security policy created above is triggered, you can click on Events in the left pane to view more information about the event.
 
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-The overall workflow for provisioning new storage is as follows:
+Next, click on the Terminal shell in a container entry to open and view additional information about the event. You can scroll through this panel to see information such as:
 
-1. Add a StorageClass and configure it to use your storage provider. The StorageClass could refer to storage in an infrastructure provider, or it could refer to your own storage.
-2. Add a persistent volume claim (PVC) that refers to the storage class.
-3. Mount the PVC as a volume for your workload.
+* Information about the policy and rule(s) triggered
 
-See https://rancher.com/docs/rancher/v2.x/en/cluster-admin/volumes-and-storage/provisioning-new-storage[Dynamically Provisioning New Storage in Rancher] for details and prerequisites.
+* Details about where the activity took place in your cluster (Scope), including what container as well as the detected process (in this case, bash)
 
+* “Tags” that indicate applicable compliance standards violated, etc.
 
-=== Creating a storage class for MongoDB
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-Once the Kubernetes cluster is running and storage is configured, it is time to deploy a highly available MongoDB database.
+To dig deeper, click on Respond at the top of this panel, and select, View Activity Audit.
 
-MongoDB resources are created in Kubernetes as custom resources. After you create or update a MongoDB Kubernetes resource specification, you direct MongoDB Kubernetes Operator to apply this specification to your Kubernetes environment. Kubernetes Operator creates the defined StatefulSets, services and other Kubernetes resources. After the Operator finishes creating those objects, it updates the Ops Manager deployment configuration to reflect changes.
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-The following example shows a resource specification for a https://docs.mongodb.com/manual/reference/glossary/#term-replica-set[replica set] configuration:
+In the *Activity Audit* screen you will find details about the incident, including commands issued, file activity, network activity and kube exec activity.
 
-[source,bash]
-----
-apiVersion: mongodb.com/v1
-kind: MongoDB
-metadata:
-  name: my-replica-set
-spec:
-  members: 3
-  version: "4.2.2-ent"
-  service: my-service
-  opsManager: # Alias of cloudManager
-    configMapRef:
-      name: my-project
-  credentials: my-credentials
-  persistent: true
-  type: ReplicaSet
-  podSpec:
-    cpu: "0.25"
-    memory: "512M"
-    persistence:
-      multiple:
-        data:
-          storage: "10Gi"
-        journal:
-          storage: "1Gi"
-          labelSelector:
-            matchLabels:
-              app: "my-app"
-        logs:
-          storage: "500M"
-          storageClass: standard
-    podAntiAffinityTopologyKey: nodeId
-    podAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-      - labelSelector:
-          matchExpressions:
-          - key: security
-            operator: In
-            values:
-            - S1
-        topologyKey: failure-domain.beta.kubernetes.io/zone
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-        - matchExpressions:
-          - key: kubernetes.io/e2e-az-name
-            operator: In
-            values:
-            - e2e-az1
-            - e2e-az2
-    podTemplate:
-      metadata:
-        labels:
-          label1: mycustomlabel
-      spec:
-        affinity:
-          podAntiAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-              - podAffinityTerm:
-                  topologyKey: "mykey"
-                weight: 50
-  security:
-    tls:
-      enabled: true
-    authentication:
-      enabled: true
-      modes: ["X509"]
-      internalCluster: "X509"
-  additionalMongodConfig:
-    net:
-      ssl:
-        mode: preferSSL
-----
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
-Full details can be found https://docs.mongodb.com/kubernetes-operator/master/reference/k8s-operator-specification[here].
+If you click on a line item, you’ll see additional details such as user, host, and scope.
+
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
+
+In addition to the Activity Audit, you can also open the Capture file created when the incident triggered to drill into further detail such as the contents of files written and/or read.
+
+Select Captures from the top of the *Activity Audit* page.
+
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
+
+Then, to the right of the Terminal shell in a container capture file, click the shovel icon to open the capture automatically with Sysdig Inspect.
+
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
+
+A new tab will open that presents you with a set of tiles that categorize the available details within the capture file. You can select any of these tiles to identify where the activity is within the timeline and drag the bars at the bottom to narrow into a specific area within the file.
+
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
+
+Next, if you click on one of the tiles such as Executed Interactive Commands, you will be able to view further information about that particular activity and continue to drill down and investigate the incident.
+
+image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
 
 
-== Creating a persistent volume
 
-We can now create a persistent volume claim (PVC) based on the storage class. Dynamic provisioning will be created without explicitly provisioning a persistent volume (PV). As part of deployment, the Kubernetes operator creates https://kubernetes.io/docs/concepts/storage/persistent-volumes[persistent volumes] for the Ops Manager StatefulSets. The Kubernetes container uses persistent volumes to maintain the cluster state between restarts.
+== Summary
+
+Security and monitoring are critical capabilities required to ensure uninterrupted operation and protection of applications and data running on SUSE Rancher. Sysdig integrates with SUSE Rancher to help you embed security into your DevOps workflows from build through production.
+
+Automating the security of Kubernetes and containers, as illustrated in our runtime security example above, will ensure you can quickly identify threats and reduce risk. To learn more about the capabilities of Sysdig together with SUSE Rancher, check out some of the additional references linked below.
 
 
-== Deploying MongoDB Kubernetes Operator
 
-Kubernetes needs help creating and managing stateful applications like databases.  The typical lifecycle events of a MongoDB cluster may include provisioning storage and computing power, configuring network connections, setting up users, and more.  This is where the MongoDB Enterprise Kubernetes Operator comes in.  It translates the human knowledge of how to create a MongoDB instance into a scalable, repeatable, and standardized methodology.  And it does this by using the built-in Kubernetes API and tools.
-To use the operator, you simply need to provide it with the specifications for your MongoDB cluster.  The operator uses this information to direct Kubernetes into performing all the required steps to achieve the end state.
 
-The general commands for deploying the MongoDB Enterprise Operator are:
 
 [source,bash]
 ----
-kubectl describe deployments mongodb-enterprise-operator -n <namespace>
+kubectl describe deployments Sysdig -n <namespace>
 
 
 helm install <chart-name> helm_chart \
@@ -258,329 +202,14 @@ helm install <chart-name> helm_chart \
 ----
 
 
-The next step after deploying the operator is to create the database using a yaml file, such as:
-
-[source,bash]
-----
-apiVersion: mongodb.com/v1
-kind: MongoDB
-metadata:
-
-  name: <my-standalone>
-
-spec:
-
-  version: "4.2.2-ent"
-
-  opsManager:
-    configMapRef:
-
-      name: <configMap.metadata.name>
-
-            # Must match metadata.name in ConfigMap file
-
-  credentials: <mycredentials>
-
-  type: Standalone
-  persistent: true
-----
-
-
-Now, we can deploy the database and check the status of the deployment with:
-
-[source,bash]
-----
-kubectl apply -f <standalone-conf>.yaml
-
-kubectl get mdb <resource-name> -o yaml
-----
-
-
-
-At this point, MongoDB has been deployed via the operator.  Additional settings can be applied to create https://docs.mongodb.com/kubernetes-operator/stable/tutorial/deploy-replica-set/[replica] sets to further enhance data availability.  Also, sharded clusters can be created to ena-ble greater throughput across a distributed system.
-
-Additionally, see specific https://github.com/mongodb/mongodb-enterprise-kubernetes[documentation] and steps for full installation and configuration options.
-
-
-== Deploying MongoDB Ops Manager resource
-
-Kubernetes needs help creating and managing stateful applications like databases.  The typical lifecycle events of a MongoDB cluster may include provisioning, storage and compute. Ops Manager can be deployed via the MongoDB Kubernetes Operator to manage MongoDB resources in a cluster.  The Operator manages the lifecycle of each of these deployments differently.
-The Operator manages Ops Manager deployments using the Ops Manager custom resource. The Operator watches the custom resource’s specification for changes. When the specification changes, the Operator validates the changes and makes the appropriate updates to the resources in the cluster.
-Ops Manager custom resources specification defines the following components: Application Database, Ops Manager application, and Backup Daemon. Summarized instructions to create Ops Manager are below, but full details can be found https://docs.mongodb.com/kubernetes-operator/master/tutorial/deploy-om-container[here].
-
-To begin, run the following command to execute all kubectl commands in the namespace you created:
-
-[source,bash]
-----
-kubectl config set-context $(kubectl config current-context) --namespace=<namespace>
-----
-
-Create Ops Manager object as below:
-
-[source,bash]
-----
-apiVersion: mongodb.com/v1
-kind: MongoDBOpsManager
-metadata:
-  name: <myopsmanager>
-spec:
-  replicas: 1
-  version: <opsmanagerversion>
-  adminCredentials: <adminusercredentials> # Should match metadata.name
-  externalConnectivity:
-    type: LoadBalancer
-  applicationDatabase:
-    members: 3
-    version: <mongodbversion>
-    persistent: true
-----
-
-
-== Loading and querying the database
-
-Once the database has been created, we can populate it with some sample data.
-
-We first find the pod that is running MongoDB:
-
-[source,bash]
-----
-POD=`kubectl get pods -l app=mongo | grep Running | grep 1/1 | awk '{print $1}'`
-----
-
-Then, access the MongoDB shell on that POD instance:
-
-[source,bash]
-----
-$ kubectl exec -it $POD mongo
-MongoDB shell version v4.0.0
-connecting to: mongodb://127.0.0.1:27017
-MongoDB server version: 4.0.0
-Welcome to the MongoDB shell.
-----
-
-Now, using the MongoDB shell, we can populate a collection:
-
-[source,bash]
-----
-db.ships.insert({name:'USS Enterprise-D',operator:'Starfleet',type:'Explorer',class:'Galaxy',crew:750,codes:[10,11,12]})
-db.ships.insert({name:'USS Prometheus',operator:'Starfleet',class:'Prometheus',crew:4,codes:[1,14,17]})
-db.ships.insert({name:'USS Defiant',operator:'Starfleet',class:'Defiant',crew:50,codes:[10,17,19]})
-db.ships.insert({name:'IKS Buruk',operator:' Klingon Empire',class:'Warship',crew:40,codes:[100,110,120]})
-db.ships.insert({name:'IKS Somraw',operator:' Klingon Empire',class:'Raptor',crew:50,codes:[101,111,120]})
-db.ships.insert({name:'Scimitar',operator:'Romulan Star Empire',type:'Warbird',class:'Warbird',crew:25,codes:[201,211,220]})
-db.ships.insert({name:'Narada',operator:'Romulan Star Empire',type:'Warbird',class:'Warbird',crew:65,codes:[251,251,220]})
-----
-
-And we can run some operations on the MongoDB collection.
-
-For example, find one arbitrary document:
-
-[source,bash]
-----
-db.ships.findOne()
-{
-	"_id" : ObjectId("5b5c16221108c314d4c000cd"),
-	"name" : "USS Enterprise-D",
-	"operator" : "Starfleet",
-	"type" : "Explorer",
-	"class" : "Galaxy",
-	"crew" : 750,
-	"codes" : [
-		10,
-		11,
-		12
-	]
-}
-----
-
-
-Or find ALL documents and apply some basic formatting:
-
-[source,bash]
-----
-db.ships.find().pretty()
- {
- 	"_id" : ObjectId("5b5c16221108c314d4c000d1"),
- 	"name" : "IKS Somraw",
- 	"operator" : " Klingon Empire",
- 	"class" : "Raptor",
- 	"crew" : 50,
- 	"codes" : [
- 		101,
- 		111,
- 		120
- 	]
- }
- {
- 	"_id" : ObjectId("5b5c16221108c314d4c000d2"),
- 	"name" : "Scimitar",
- 	"operator" : "Romulan Star Empire",
- 	"type" : "Warbird",
- 	"class" : "Warbird",
- 	"crew" : 25,
- 	"codes" : [
- 		201,
- 		211,
- 		220
- 	]
- }
-----
-
-
-And return a list of the names of the ships:
-
-[source,bash]
-----
- db.ships.find({}, {name:true, _id:false})
- { "name" : "USS Enterprise-D" }
- { "name" : "USS Prometheus" }
- { "name" : "USS Defiant" }
- { "name" : "IKS Buruk" }
- { "name" : "IKS Somraw" }
- { "name" : "Scimitar" }
- { "name" : "Narada" }
-----
-
-
-== Simulating node failure & restoration
-
-Now, let’s simulate a node failure by cordoning off the node on which MongoDB is running:
-
-[source,bash]
-----
-$ NODE=`kubectl get pods -l app=mongo -o wide | grep -v NAME | awk '{print $7}'`
-
-$ kubectl cordon ${NODE} node/ip-172-31-29-132.compute.internal cordoned
-----
-
-The above command disables scheduling on one of the nodes.
-We can check this with:
-
-[source,bash]
-----
-$ kubectl get nodes
-NAME                                           STATUS                     ROLES               AGE   VERSION
-ip-172-31-24-121.compute.internal   Ready                      worker              47h   v1.13.4
-ip-172-31-26-49.compute.internal    Ready                      controlplane,etcd   47h   v1.13.4
-ip-172-31-28-65.compute.internal    Ready                      worker              47h   v1.13.4
-ip-172-31-29-132.compute.internal   Ready,SchedulingDisabled   worker              47h   v1.13.4
-----
-
-
-Now, let’s go ahead and delete the MongoDB pod:
-
-[source,bash]
-----
-$ POD=`kubectl get pods -l app=mongo -o wide | grep -v NAME | awk '{print $1}'`
-$ kubectl delete pod ${POD}
-pod "mongo-68cc69bc95-7q96h" deleted
-----
-
-As soon as the pod is deleted, it is relocated to the node with the replicated data, even when that node is in a different zone.  Each pod is rescheduled on the exact node where the data is stored.
-
-Let’s verify this:
-
-[source,bash]
-----
-$ kubectl get pods -l app=mongo -o wide
-NAME                     READY     STATUS    RESTARTS   AGE       IP               NODE
-mongo-68cc69bc95-thqbm   1/1       Running   0          19s       192.168.82.119   ip-172-31-24-121.compute.internal
-----
-
-Notice that a new pod has been created and scheduled in a different node.
-
-Next, let’s uncordon the node to bring it back to action:
-
-[source,bash]
-----
-$ kubectl uncordon ${NODE}
-node/ip-172-31-29-132.compute.internal uncordoned
-----
-
-
-Finally, let’s verify that the data is still available.
-
-First, find the pod name and run the ‘exec’ command, then access the Mongo shell:
-
-[source,bash]
-----
-POD=`kubectl get pods -l app=mongo | grep Running | grep 1/1 | awk '{print $1}'`
-kubectl exec -it $POD mongo
-MongoDB shell version v4.0.0
-connecting to: mongodb://127.0.0.1:27017
-MongoDB server version: 4.0.0
-Welcome to the MongoDB shell.
-----
-
-
-Now, let's query the collection to verify that the data is intact.
-
-Find one arbitrary document:
-
-[source,bash]
-----
-db.ships.findOne()
-{
-	"_id" : ObjectId("5b5c16221108c314d4c000cd"),
-	"name" : "USS Enterprise-D",
-	"operator" : "Starfleet",
-	"type" : "Explorer",
-	"class" : "Galaxy",
-	"crew" : 750,
-	"codes" : [
-		10,
-		11,
-		12
-	]
-}
-----
-
-
-And find all documents and apply formatting:
-
-[source,bash]
-----
-db.ships.find().pretty()
-…..
-{
-	"_id" : ObjectId("5b5c16221108c314d4c000d1"),
-	"name" : "IKS Somraw",
-	"operator" : " Klingon Empire",
-	"class" : "Raptor",
-	"crew" : 50,
-	"codes" : [
-		101,
-		111,
-		120
-	]
-}
-{
-	"_id" : ObjectId("5b5c16221108c314d4c000d2"),
-	"name" : "Scimitar",
-	"operator" : "Romulan Star Empire",
-	"type" : "Warbird",
-	"class" : "Warbird",
-	"crew" : 25,
-	"codes" : [
-		201,
-		211,
-		220
-	]
-}
-----
-
-For further validation, feel free to run all the same initial steps to compare that data is still available with originally queried values.
-
-
-== Summary
-
-MongoDB with SUSE Rancher makes it possible to easily build, deploy, and manage resilient, scalable data services.
 
 
 == Additional resources
-*	https://rancher.com/docs/rancher/v2.x/en/best-practices/[Rancher best practices guide]
-*	https://rancher.com/docs/rancher/v2.x/en/troubleshooting/[Rancher troubleshooting tips]
-*	https://github.com/mongodb/mongodb-kubernetes-operator[MongoDB best practices]
+
+* https://sysdig.com/partners/suse-rancher[Sysdig and SUSE Rancher solution page]
+* https://sysdig.com/secure-devops-platform/[Sysdig Secure DevOps Platform product page]
+* https://dig.sysdig.com/c/pf-kubernetes-security-guide?x=u_WFRi[Kubernetes Security Guide]
+
 
 
 :leveloffset: 0
