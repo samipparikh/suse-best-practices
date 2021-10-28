@@ -45,8 +45,8 @@ To get started, install the Sysdig agent in your cluster. Choose one of the foll
 
 * *Install from Rancher Apps & Marketplace:*  From the top-left Rancher menu select “Apps & Marketplace.”
 
-image::TRD-Kubernetes-ss-sysdig-gs-image-X.png[scaledwidth="75%", align="center"]
-IMAGE 2
+image::../images/src/png/TRD-Kubernetes-ss-sysdig-gs-image-marketplace-overview.png[scaledwidth="75%", align="center"]
+image::../images/src/png/TRD-Kubernetes-ss-sysdig-gs-image-marketplace.png[scaledwidth="75%", align="center"]
 
 You will be taken to the Charts page. Locate Sysdig Monitor & Secure to install using the Sysdig https://github.com/sysdiglabs/charts-rancher[helm chart.]
 
