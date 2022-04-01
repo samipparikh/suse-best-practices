@@ -149,7 +149,7 @@ externalURL: "https://<core_fqdn>"
 +
 Replace `<core_fqdn>` and `<notary_fqdn>` values with the resolvable FQDN values that were prepared as detailed in the <<requirements>> section.
 If the Notary service was not enabled in the configuration, the `<notary_fqdn>` entry may be omitted.
-The `harbor-values.yaml` configuration would look like this, if, for example, a public service like link:nip.io[nip.io] was used to provide FQDNs:
+The `harbor-values.yaml` configuration would look like this, if, for example, a public service like link:https://nip.io[nip.io] was used to provide FQDNs:
 +
 .harbor-values.yaml
 [source,yaml]
@@ -751,7 +751,7 @@ redis:
 
 . [[install-passwords]] Set up the passwords for deployment
 +
-By default, all passwords are automatically generated when installing {spr} with the Helm chart. They can be retrieved post-installation from the created {kube} secrets objects. For example, to retrieve the Harbor adminstrator password necessary to log in into the Harbor Portal UI as admin user, run this command after the deployment is finished:
+By default, all passwords are automatically generated when installing {spr} with the Helm chart. They can be retrieved post-installation from the created {kube} secrets objects. For example, to retrieve the Harbor administrator password necessary to log in into the Harbor Portal UI as admin user, run this command after the deployment is finished:
 +
 [source,bash]
 ----

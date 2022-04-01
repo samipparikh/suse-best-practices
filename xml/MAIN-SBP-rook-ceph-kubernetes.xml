@@ -40,6 +40,18 @@
 			<para>The document at hand provides an overview of the best practices and tested
 				patterns of using Rook v1.3 to manage your Ceph Octopus cluster running in
 				Kubernetes.</para>
+			
+			<para>
+				<emphasis role="strong">Disclaimer: </emphasis>
+				Documents published as part of the SUSE Best Practices series have been contributed voluntarily
+				by SUSE employees and third parties. They are meant to serve as examples of how particular
+				actions can be performed. They have been compiled with utmost attention to detail. However,
+				this does not guarantee complete accuracy. SUSE cannot verify that actions described in these
+				documents do what is claimed or whether actions described have unintended consequences.
+				SUSE LLC, its affiliates, the authors, and the translators may not be held liable for possible errors
+				or the consequences thereof.
+			</para>
+			
 		</abstract>
 
 	</info>
@@ -107,7 +119,7 @@
 			</listitem>
 			<listitem>
 				<para> Rook basics and how to install Rook-Ceph. For more information see <link
-						xlink:href="https://rook.io/docs/rook/master/ceph-storage.html"/>
+						xlink:href="https://rook.io/docs/rook/v1.3/ceph-storage.html"/>
 				</para>
 			</listitem>
 		</itemizedlist>
@@ -241,13 +253,13 @@
 			<listitem>
 				<para> Rook has the capability to auto-remove Deployments for OSDs which are kicked
 					out of a Ceph cluster. This is enabled by:
-						<literal>removeOSDSIfOutAndSafeToRemove: true</literal>. This means there is
+						<literal>removeOSDsIfOutAndSafeToRemove: true</literal>. This means there is
 					less user OSD maintenance and no need to delete Deployments for OSDs that have
 					been kicked out. Rook will automatically clean up the cluster by removing OSD
 					Pods if the OSDs are no longer holding Ceph data. However, keep in mind that
 					this can reduce the visibility of failures from Kubernetes Pod and Pod
 					Controller views. You can optionally set
-						<literal>removeOSDSIfOutAndSafeToRemove</literal> to <option>false</option>
+						<literal>removeOSDsIfOutAndSafeToRemove</literal> to <option>false</option>
 					if need be, such as if a Kubernetes administrator wants to see disk failures via
 					a Pod overview. </para>
 			</listitem>
@@ -352,7 +364,7 @@ placement:
 	</sect1>
 
 	<sect1 xml:id="sec-set-crush-map">
-		<title>Setting Ceph CRUSH Map via Kubernetes Node Lables</title>
+		<title>Setting Ceph CRUSH Map via Kubernetes Node Labels</title>
 		<para> A feature that was implemented early in Rook’s development is to set Ceph’s CRUSH map
 			via Kubernetes Node labels. For our example data center, we recommend labelling Nodes
 			with <option>room</option>, <option>rack</option>, and <option>chassis</option>. </para>
@@ -506,28 +518,28 @@ nodeAffinity:​
 			<screen>
 cluster.yaml:
 placement:
-	mon:
-# ... nodeAffinity from above ...
-podAntiAffinity:​
-  preferredDuringSchedulingIgnoredDuringExecution:​
-    - weight:80​
-      podAffinityTerm:​
-        labelSelector:​
-          matchLabels:​
-            app:rook-ceph-mon​
-        topologyKey:topology.rook.io/room​
-    - weight:90​
-      podAffinityTerm:​
-        labelSelector:​
-          matchLabels:​
-            app:rook-ceph-mon​
-        topologyKey:topology.rook.io/rack​
-		- weight: 100​
-		  podAffinityTerm:​
-		    labelSelector:​
-		      matchLabels:​
-		        app: rook-ceph-mon​
-		    topologyKey: kubernetes.io/hostname​
+  mon:
+    # ... nodeAffinity from above ...
+    podAntiAffinity:​
+      preferredDuringSchedulingIgnoredDuringExecution:​
+        - weight:80​
+          podAffinityTerm:​
+            labelSelector:​
+              matchLabels:​
+                app:rook-ceph-mon​
+            topologyKey:topology.rook.io/room​
+        - weight:90​
+          podAffinityTerm:​
+            labelSelector:​
+              matchLabels:​
+                app:rook-ceph-mon​
+            topologyKey:topology.rook.io/rack​
+        - weight: 100​
+          podAffinityTerm:​
+            labelSelector:​
+              matchLabels:​
+                app: rook-ceph-mon​
+            topologyKey: kubernetes.io/hostname​
 </screen>
 
 			<note>
@@ -584,7 +596,7 @@ podAntiAffinity:​
 			<para> Placing the other Ceph daemons follows the same logic and methods as MONs and
 				OSDs: MGR, MDS, RGW, NFS-Ganesha, and RBD mirroring daemons can all be placed as
 				desired. For more information, see <link
-					xlink:href="https://rook.io/docs/rook/master/ceph-cluster-crd.html#placement-configuration-settings"
+					xlink:href="https://rook.io/docs/rook/v1.3/ceph-cluster-crd.html#placement-configuration-settings"
 				/>
 			</para>
 		</sect2>
@@ -808,38 +820,9 @@ Total RAM required = [number of OSDs] x (1 GB + osd_memory_target) + 16 GB
 		</itemizedlist>
 	</sect1>
 
-
-	<sect1 xml:id="sec-legal-notice">
-		<title>Legal Notice</title>
-		<para>Copyright &copy;2006–2020 SUSE LLC and contributors. All rights reserved. </para>
-		<para>Permission is granted to copy, distribute and/or modify this document under the terms
-			of the GNU Free Documentation License, Version 1.2 or (at your option) version 1.3; with
-			the Invariant Section being this copyright notice and license. A copy of the license
-			version 1.2 is included in the section entitled <quote>GNU Free Documentation
-				License</quote>.</para>
-		<para>SUSE, the SUSE logo and YaST are registered trademarks of SUSE LLC in the United
-			States and other countries. For SUSE trademarks, see <link
-				xlink:href="http://www.suse.com/company/legal/"
-				>http://www.suse.com/company/legal/</link>. Linux is a registered trademark of Linus
-			Torvalds. All other names or trademarks mentioned in this document may be trademarks or
-			registered trademarks of their respective owners.</para>
-		<para>This article is part of a series of documents called <quote>SUSE Best
-				Practices</quote>. The individual documents in the series were contributed
-			voluntarily by SUSE's employees and by third parties.</para>
-		<para>The articles are intended only to be one example of how a particular action could be
-			taken. They should not be understood to be the only action and certainly not to be the
-			action recommended by SUSE. Also, SUSE cannot verify either that the actions described
-			in the articles do what they claim to do or that they don't have unintended
-			consequences.</para>
-		<para> All information found in this article has been compiled with utmost attention to
-			detail. However, this does not guarantee complete accuracy.
-			<!--Neither SUSE LLC, the authors, nor the translators shall be held liable
-				for possible errors or the consequences thereof. --></para>
-		<para>Therefore, we need to specifically state that neither SUSE LLC, its affiliates, the
-			authors, nor the translators may be held liable for possible errors or the consequences
-			thereof. Below we draw your attention to the license under which the articles are
-			published.</para>
-	</sect1>
+	<?pdfpagebreak style="suse2013-sbp" formatter="fop"?>
+	
+	<xi:include href="sbp-legal-notice.xml"/>
 
 	<?pdfpagebreak style="suse2013-sbp" formatter="fop"?>
 

@@ -87,7 +87,18 @@
       <para>The document at hand provides an overview of the AMD* EPYC*
         architecture and how computational-intensive workloads can be tuned
         on SUSE Linux Enterprise Server 12 SP3.</para>
+      <para>
+        <emphasis role="strong">Disclaimer: </emphasis>
+        Documents published as part of the SUSE Best Practices series have been contributed voluntarily
+        by SUSE employees and third parties. They are meant to serve as examples of how particular
+        actions can be performed. They have been compiled with utmost attention to detail. However,
+        this does not guarantee complete accuracy. SUSE cannot verify that actions described in these
+        documents do what is claimed or whether actions described have unintended consequences.
+        SUSE LLC, its affiliates, the authors, and the translators may not be held liable for possible errors
+        or the consequences thereof.
+      </para>
     </abstract>
+    
   </info>
 
   <sect1 xml:id="sec-overview">
@@ -1667,7 +1678,7 @@ stream-18798 [000]  x: sched_migrate_task:   comm=stream pid=18813 prio=120 o
             role="strong">libvirt</emphasis> daemon).</para>
 
         <para>All that has been described so far is greatly workload
-          dependant. Since each VM does some IO, the ideal setup would be
+          dependent. Since each VM does some IO, the ideal setup would be
           to dedicate one host physical or logical core to doing IO for
           each device used by each VM (or at least for those devices
           important for the specific workload, for example, network IO, for
@@ -2368,7 +2379,7 @@ node   0
 
         <para>If huge pages are used for allocating the VMs’ memory on the
           host, they can also be used inside the VMs, either explicitly, or
-          via THP. Whether that helps performance is workload dependant.
+          via THP. Whether that helps performance is workload dependent.
           The analysis and the considerations made in the first part of the
           paper about using (T)HP on bare metal can also be applied
           here.</para>
@@ -3124,6 +3135,11 @@ node   0
       attention to the license under which the articles are
       published.</para>
   </sect1>
+
+  <?pdfpagebreak style="suse2013-sbp" formatter="fop"?>
+  
+  <xi:include href="sbp-legal-notice.xml"/>
+
 
   <?pdfpagebreak style="suse2013-sbp" formatter="fop"?>
   <xi:include href="license-gfdl.xml"/>

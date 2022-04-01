@@ -1,3 +1,8 @@
+:reg: (R)
+:cpr: (C)
+:trmk: (TM)
+:trade: {trmk}
+:uarr:
 :usecase: cost optimized
 :prodNr: 12
 :prodSP: SP4
@@ -31,8 +36,8 @@
 :yelp: Help
 :khc: KDE help center
 :umtsmon: UMTSmon
-:ooo: {libo}
 :libo: LibreOffice
+:ooo: {libo}
 :aide: AIDE
 :x86: x86
 :amd64: AMD64
@@ -49,10 +54,6 @@
 :sle: SUSE Linux Enterprise
 :slea: SLE
 :sas: {sle} Advanced Server
-:reg: (R)
-:cpr: (C)
-:trmk: (TM)
-:uarr:
 :slereg: SUSE{reg} Linux Enterprise
 :slert: {sle} Real Time
 :slerte: {slert} Extension
@@ -186,8 +187,8 @@
 :deploymentGuide12: https://documentation.suse.com/sles/12-SP4/html/SLES-all/book-sle-deployment.html
 :autoYastGuide12: https://documentation.suse.com/sles/12-SP4/html/SLES-all/book-autoyast.html
 :haAdminGuide12: https://documentation.suse.com/sle-ha/12-SP4/html/SLE-HA-all/book-sleha.html
-:lauchPadNotes: https://launchpad.support.sap.com/#/notes/
-:reslibrary: https://documentation.suse.com/sbp/all/
+:launchPadNotes: https://launchpad.support.sap.com/#/notes/
+:reslibrary: https://documentation.suse.com/sbp/sap/
 :refsidadm: <sid>adm
 :refHost1: <host1>
 :refInst: <instanceNumber>

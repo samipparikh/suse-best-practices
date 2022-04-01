@@ -315,7 +315,7 @@ salt-run state.orch ceph.stage.prep
 ..	Run the discover stage to collect data from all minions and create configuration fragments:
 +
 ----
-salt-run state.orch ceph.stage.disovery
+salt-run state.orch ceph.stage.discovery
 ----
 +
 ..	A proposal for the storage layout needs to be generated at this time.  For the hardware configuration used for this work, the following command was utilized:
@@ -673,7 +673,7 @@ Armv8
 https://developer.arm.com/architectures/cpu-architecture/a-profile
 
 {vendor}
-https://amperecomputing.com/emag/
+https://amperecomputing.com/
 
 {drivevendor}
 Operating system and storage drives

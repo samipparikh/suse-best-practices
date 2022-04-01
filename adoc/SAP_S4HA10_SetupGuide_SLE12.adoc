@@ -67,7 +67,7 @@ For the latest product documentation updates, see https://documentation.suse.com
 More whitepapers, guides and best practices documents referring to SUSE Linux Enterprise Server and SAP can be
 found and downloaded at the SUSE Best Practices Web page:
 
-https://documentation.suse.com/sbp/all/
+https://documentation.suse.com/sbp/sap/
 
 Here you can access guides for {SAPHANA} system replication
 automation and High Availability (HA) scenarios for {SAPNw} and {s4hana}.
@@ -756,8 +756,8 @@ On _{my2nd2}_, do the following
 
 The HANA DB has very strict HW requirements. The storage sizing depends on many
 indicators. Check the supported configurations at
-https://www.sap.com/documents/2015/03/74cdb554-5a7c-0010-82c7-eda71af511fa.html[SAP HANA Hardware Directory]
-and https://www.sap.com/documents/2015/03/74cdb554-5a7c-0010-82c7-eda71af511fa.html[SAP HANA TDI].
+https://support.sap.com/en/release-upgrade-maintenance.html#section_1969201630[SAP HANA Hardware Directory]
+and https://www.sap.com/documents/2016/05/e8705aae-717c-0010-82c7-eda71af511fa.html[SAP HANA TDI].
 
 [subs="attributes"]
 ----
@@ -1414,7 +1414,7 @@ The examples below will show the setting up of Multi-node cluster and the extens
 will be shown and the basic preparation of the new cluster member node.
 
 The task list to set up the three node cluster is similar to the task list of the two node cluster. But some
-details are decribed different here to get a diskless SBD setup.
+details are described different here to get a diskless SBD setup.
 
 ////
 .Tasks
@@ -1865,7 +1865,7 @@ In the next step the following information are required:
 +
 NOTE: This must be done for each instance. Call sapstartsrv with parameters *pf=*<profile-of-the-sap-instance> and *-reg*.
 +
-The following commans register the ASCS and the ERS {sap} instance:
+The following commands register the ASCS and the ERS {sap} instance:
 +
 [subs="specialchars,attributes"]
 ----
@@ -1977,7 +1977,7 @@ include::SAPNotes_s4_1809.adoc[]
 ////
 ############################
 #
-# APENDIX
+# APPENDIX
 #
 ############################
 ////
@@ -1988,7 +1988,7 @@ include::SAPNotes_s4_1809.adoc[]
 === CRM Configuration
 
 Find below the complete crm configuration for {sap} system {mySid}. This example
-is for the two node cluster. In multi node cluster you will find additonal node entries
+is for the two node cluster. In multi node cluster you will find additional node entries
 like *node 3: {my3nd3}*.
 
 [subs="attributes"]
